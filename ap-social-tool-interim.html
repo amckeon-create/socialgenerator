@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arnold & Porter — Social Image Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dark-blue: #1B3769;
+    --primary-blue: #4593C5;
+    --yellow: #F1B51C;
+    --gray: #C3C3C3;
+    --light-blue: #D2E5F1;
+    --dark-gray: #898B8E;
+    --light-gray: #E0E1E2;
+    --white: #ffffff;
+    --off-white: #F5F6F8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--off-white);
+    color: var(--dark-blue);
+    min-height: 100vh;
+  }
+  header {
+    background: var(--dark-blue);
+    padding: 0 48px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--yellow);
+  }
+  .logo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--white); }
+  .logo em { color: var(--yellow); font-style: normal; }
+  .header-tag { font-size: 11px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gray); }
+
+  .app { display: grid; grid-template-columns: 380px 1fr; min-height: calc(100vh - 67px); }
+
+  /* FORM */
+  .form-panel { background: var(--white); border-right: 1px solid var(--light-gray); padding: 36px 32px 48px; overflow-y: auto; }
+  .form-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--dark-blue); margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid var(--light-gray); }
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--dark-gray); margin-bottom: 7px; }
+  .field input, .field textarea { width: 100%; border: 1.5px solid var(--light-gray); border-radius: 3px; padding: 11px 13px; font-family: 'Source Sans 3', sans-serif; font-size: 14px; color: var(--dark-blue); background: var(--white); transition: border-color 0.18s; outline: none; line-height: 1.5; }
+  .field input:focus, .field textarea:focus { border-color: var(--primary-blue); }
+  .field textarea { resize: vertical; min-height: 76px; }
+  .field-hint { font-size: 11.5px; color: var(--dark-gray); margin-top: 5px; line-height: 1.45; }
+  .char-row { display: flex; justify-content: flex-end; margin-top: 4px; }
+  .char-count { font-size: 11px; color: var(--dark-gray); }
+  .char-count.warn { color: #c0392b; font-weight: 600; }
+
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--dark-gray); margin-bottom: 10px; display: block; }
+  .tmpl-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 26px; }
+  .tmpl-btn { cursor: pointer; border-radius: 4px; overflow: hidden; border: 2.5px solid var(--light-gray); transition: border-color 0.15s, transform 0.12s; position: relative; background: none; padding: 0; }
+  .tmpl-btn:hover { border-color: var(--primary-blue); transform: translateY(-2px); }
+  .tmpl-btn.active { border-color: var(--yellow); }
+  .tmpl-btn.active::after { content: '✓'; position: absolute; top: 3px; right: 4px; background: var(--yellow); color: var(--dark-blue); font-size: 9px; font-weight: 800; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 15px; text-align: center; }
+  .tmpl-thumb { width: 100%; aspect-ratio: 1200/627; display: block; }
+  .tmpl-name { font-size: 9px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--dark-gray); text-align: center; padding: 5px 2px; background: var(--off-white); }
+
+  .divider { height: 1px; background: var(--light-gray); margin: 24px 0; }
+
+  .btn-generate { width: 100%; background: var(--dark-blue); color: var(--white); border: none; border-radius: 3px; padding: 15px; font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: background 0.2s; margin-top: 4px; }
+  .btn-generate:hover { background: #142a54; }
+  .status-msg { font-size: 13px; padding: 10px 13px; border-radius: 3px; margin-top: 10px; display: none; }
+  .status-msg.error { background: #fde8e8; color: #c0392b; display: block; }
+
+  /* PREVIEW */
+  .preview-panel { padding: 36px 44px 48px; display: flex; flex-direction: column; align-items: flex-start; }
+  .preview-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--dark-blue); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--light-gray); width: 100%; }
+  .canvas-wrap { width: 100%; max-width: 800px; }
+  .placeholder { width: 100%; aspect-ratio: 1200/627; background: var(--white); border: 2px dashed var(--light-gray); border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--gray); }
+  .placeholder p { font-size: 14px; }
+  #outputCanvas { width: 100%; height: auto; display: none; border-radius: 4px; box-shadow: 0 6px 36px rgba(27,55,105,0.14); }
+
+  .loading-bar { width: 100%; height: 3px; background: var(--light-gray); border-radius: 2px; margin-top: 10px; overflow: hidden; display: none; }
+  .loading-bar.active { display: block; }
+  .loading-fill { height: 100%; background: var(--primary-blue); border-radius: 2px; animation: loadAnim 1.6s ease-in-out infinite; }
+  @keyframes loadAnim { 0% { width: 0%; margin-left: 0; } 50% { width: 65%; margin-left: 20%; } 100% { width: 0%; margin-left: 100%; } }
+
+  .edit-card { width: 100%; max-width: 800px; background: var(--white); border: 1px solid var(--light-gray); border-radius: 4px; padding: 22px 24px 20px; margin-top: 22px; display: none; }
+  .edit-card h3 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 14px; color: var(--dark-blue); }
+  .edit-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .edit-row .field { margin-bottom: 0; }
+
+  .action-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .btn { padding: 11px 20px; border-radius: 3px; font-family: 'Source Sans 3', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; cursor: pointer; border: none; transition: all 0.18s; display: inline-flex; align-items: center; gap: 7px; }
+  .btn-download { background: var(--yellow); color: var(--dark-blue); }
+  .btn-download:hover { background: #d9a018; }
+  .btn-linkedin { background: #0077B5; color: #fff; }
+  .btn-linkedin:hover { background: #005f91; }
+  .btn-facebook { background: #1877F2; color: #fff; }
+  .btn-facebook:hover { background: #0c5ecf; }
+  .btn-instagram { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color: #fff; }
+  .share-sep { width: 1px; height: 28px; background: var(--light-gray); margin: 0 4px; }
+  .share-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dark-gray); }
+  .ig-note { font-size: 11.5px; color: var(--dark-gray); margin-top: 10px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Arnold <em>&</em> Porter</div>
+  <div class="header-tag">Social Image Generator</div>
+</header>
+
+<div class="app">
+
+  <div class="form-panel">
+    <div class="form-title">Create Your Image</div>
+
+    <span class="section-label">Choose a Template</span>
+    <div class="tmpl-grid" id="tmplGrid"></div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Headline</label>
+      <input type="text" id="inHeadline" placeholder="e.g. Speaking at ABA Annual Meeting" maxlength="80" oninput="updateChar('inHeadline','ccHeadline',80)">
+      <div class="char-row"><span class="char-count" id="ccHeadline">0 / 80</span></div>
+      <p class="field-hint">Bold and punchy — 8 words or fewer works best.</p>
+    </div>
+
+    <div class="field">
+      <label>Body Text</label>
+      <textarea id="inBody" placeholder="Share context, insight, or a key takeaway…" maxlength="220" oninput="updateChar('inBody','ccBody',220)" rows="3"></textarea>
+      <div class="char-row"><span class="char-count" id="ccBody">0 / 220</span></div>
+    </div>
+
+    <div class="field">
+      <label>Event / Label</label>
+      <input type="text" id="inLabel" placeholder="e.g. May 12–14, 2026 · Chicago, IL" maxlength="70" oninput="updateChar('inLabel','ccLabel',70)">
+      <div class="char-row"><span class="char-count" id="ccLabel">0 / 70</span></div>
+      <p class="field-hint">Date, location, event name, or topic tag.</p>
+    </div>
+
+    <div class="divider"></div>
+    <button class="btn-generate" onclick="generate()">Generate Image →</button>
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <div class="preview-panel">
+    <div class="preview-title">Preview &amp; Export</div>
+    <div class="canvas-wrap">
+      <div class="placeholder" id="placeholder">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect x="3" y="9" width="38" height="26" rx="3" stroke="#C3C3C3" stroke-width="2"/>
+          <path d="M3 29 L13 20 L21 27 L29 18 L41 29" stroke="#4593C5" stroke-width="2" stroke-linejoin="round" opacity="0.5"/>
+        </svg>
+        <p>Your image will appear here</p>
+      </div>
+      <canvas id="outputCanvas" width="1200" height="627"></canvas>
+    </div>
+    <div class="loading-bar" id="loadingBar"><div class="loading-fill"></div></div>
+
+    <div class="edit-card" id="editCard">
+      <h3>Refine Your Text</h3>
+      <div class="edit-row">
+        <div class="field"><label>Headline</label><input type="text" id="eHeadline" oninput="liveRedraw()"></div>
+        <div class="field"><label>Body</label><input type="text" id="eBody" oninput="liveRedraw()"></div>
+        <div class="field"><label>Label</label><input type="text" id="eLabel" oninput="liveRedraw()"></div>
+      </div>
+      <div class="action-row">
+        <button class="btn btn-download" onclick="dlImage()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download PNG
+        </button>
+        <div class="share-sep"></div>
+        <span class="share-label">Share</span>
+        <button class="btn btn-linkedin" onclick="shareLinkedIn()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+          LinkedIn
+        </button>
+        <button class="btn btn-facebook" onclick="shareFacebook()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+          Facebook
+        </button>
+        <button class="btn btn-instagram" onclick="shareInstagram()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          Instagram
+        </button>
+      </div>
+      <p class="ig-note">LinkedIn and Facebook open a share dialog. For Instagram, download the image first and upload via the app.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const C = {
+  darkBlue:'#1B3769', blue:'#4593C5', yellow:'#F1B51C',
+  gray:'#C3C3C3', lightBlue:'#D2E5F1', darkGray:'#898B8E',
+  lightGray:'#E0E1E2', white:'#ffffff'
+};
+
+const TEMPLATES = [
+  {
+    id:'flagship', name:'Flagship',
+    headlineColor:C.white, bodyColor:C.lightBlue,
+    labelBg:C.yellow, labelColor:C.darkBlue,
+    wordmarkColor:C.white, wordmarkAlpha:0.22,
+    drawBg(ctx,W,H){
+      ctx.fillStyle=C.darkBlue; ctx.fillRect(0,0,W,H);
+      ctx.save(); ctx.globalAlpha=0.07; ctx.fillStyle=C.blue;
+      ctx.beginPath(); ctx.moveTo(W*0.42,0); ctx.lineTo(W,0); ctx.lineTo(W,H*0.72); ctx.closePath(); ctx.fill();
+      ctx.globalAlpha=0.04; ctx.strokeStyle=C.white; ctx.lineWidth=1;
+      for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+      for(let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      ctx.restore();
+      ctx.fillStyle=C.yellow; ctx.fillRect(0,H-7,W,7);
+      ctx.fillStyle=C.yellow; ctx.fillRect(0,0,6,H-7);
+    }
+  },
+  {
+    id:'clean', name:'Clean',
+    headlineColor:C.darkBlue, bodyColor:C.darkGray,
+    labelBg:C.lightBlue, labelColor:C.darkBlue,
+    wordmarkColor:C.darkBlue, wordmarkAlpha:0.15,
+    drawBg(ctx,W,H){
+      ctx.fillStyle=C.white; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle=C.darkBlue; ctx.fillRect(0,0,W,12);
+      ctx.fillStyle=C.lightGray; ctx.fillRect(0,H-2,W,2);
+      ctx.save(); ctx.globalAlpha=0.055; ctx.fillStyle=C.blue; ctx.fillRect(W*0.7,0,W*0.3,H); ctx.restore();
+      ctx.fillStyle=C.yellow; ctx.fillRect(0,12,6,H-14);
+      ctx.save(); ctx.globalAlpha=0.12; ctx.fillStyle=C.blue;
+      for(let x=W*0.74;x<W-20;x+=28){
+        for(let y=22;y<H*0.55;y+=28){ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill();}
+      }
+      ctx.restore();
+    }
+  },
+  {
+    id:'sky', name:'Sky',
+    headlineColor:C.darkBlue, bodyColor:'#2a4a7a',
+    labelBg:C.darkBlue, labelColor:C.white,
+    wordmarkColor:C.darkBlue, wordmarkAlpha:0.18,
+    drawBg(ctx,W,H){
+      ctx.fillStyle=C.lightBlue; ctx.fillRect(0,0,W,H);
+      ctx.save(); ctx.globalAlpha=0.14; ctx.fillStyle=C.blue;
+      ctx.beginPath(); ctx.moveTo(0,H*0.62); ctx.lineTo(W,H*0.28); ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.fill();
+      ctx.restore();
+      ctx.fillStyle=C.darkBlue; ctx.fillRect(0,0,W,10);
+      ctx.fillStyle=C.yellow; ctx.fillRect(0,10,6,H-10);
+      ctx.save(); ctx.globalAlpha=0.1; ctx.strokeStyle=C.darkBlue; ctx.lineWidth=1;
+      for(let y=40;y<H-40;y+=22){ctx.beginPath();ctx.moveTo(W*0.66,y);ctx.lineTo(W-30,y);ctx.stroke();}
+      ctx.restore();
+    }
+  },
+  {
+    id:'gold', name:'Gold',
+    headlineColor:C.darkBlue, bodyColor:'#2a3a5a',
+    labelBg:C.darkBlue, labelColor:C.white,
+    wordmarkColor:C.darkBlue, wordmarkAlpha:0.14,
+    drawBg(ctx,W,H){
+      ctx.fillStyle=C.yellow; ctx.fillRect(0,0,W,H);
+      ctx.save(); ctx.globalAlpha=0.1; ctx.fillStyle=C.darkBlue;
+      ctx.beginPath(); ctx.arc(W+80,H+80,430,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+      ctx.fillStyle=C.darkBlue; ctx.fillRect(0,0,W,10); ctx.fillRect(0,0,6,H); ctx.fillRect(0,H-3,W,3);
+      ctx.save(); ctx.globalAlpha=0.04; ctx.strokeStyle=C.darkBlue; ctx.lineWidth=1;
+      for(let i=-H;i<W+H;i+=32){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i+H,H);ctx.stroke();}
+      ctx.restore();
+    }
+  },
+  {
+    id:'slate', name:'Slate',
+    headlineColor:C.white, bodyColor:C.gray,
+    labelBg:C.blue, labelColor:C.white,
+    wordmarkColor:C.white, wordmarkAlpha:0.2,
+    drawBg(ctx,W,H){
+      ctx.fillStyle='#22263a'; ctx.fillRect(0,0,W,H);
+      const g=ctx.createLinearGradient(W*0.5,0,W,0);
+      g.addColorStop(0,'transparent'); g.addColorStop(1,C.blue+'18');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle=C.blue; ctx.fillRect(0,H-6,W,6); ctx.fillRect(0,0,6,H-6);
+      ctx.save(); ctx.globalAlpha=0.06; ctx.strokeStyle=C.blue; ctx.lineWidth=1.5;
+      for(let r=100;r<=500;r+=80){ctx.beginPath();ctx.arc(W-60,60,r,0,Math.PI*2);ctx.stroke();}
+      ctx.restore();
+    }
+  }
+];
+
+let activeTmpl = TEMPLATES[0];
+let generated = false;
+
+function buildThumbs(){
+  const grid=document.getElementById('tmplGrid');
+  TEMPLATES.forEach((t,i)=>{
+    const btn=document.createElement('button');
+    btn.className='tmpl-btn'+(i===0?' active':'');
+    const c=document.createElement('canvas');
+    c.width=240; c.height=125; c.className='tmpl-thumb';
+    const ctx=c.getContext('2d');
+    ctx.save(); ctx.scale(240/1200,125/627); t.drawBg(ctx,1200,627); ctx.restore();
+    ctx.fillStyle=t.headlineColor; ctx.fillRect(18,26,110,10);
+    ctx.fillStyle=t.bodyColor+'99'; ctx.fillRect(18,42,80,6); ctx.fillRect(18,52,62,6);
+    ctx.fillStyle=t.labelBg; ctx.beginPath(); ctx.roundRect(18,96,72,14,3); ctx.fill();
+    btn.appendChild(c);
+    const lbl=document.createElement('div'); lbl.className='tmpl-name'; lbl.textContent=t.name;
+    btn.appendChild(lbl);
+    btn.onclick=()=>{
+      document.querySelectorAll('.tmpl-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active'); activeTmpl=t;
+      if(generated) liveRedraw();
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function updateChar(inputId,counterId,max){
+  const len=document.getElementById(inputId).value.length;
+  const el=document.getElementById(counterId);
+  el.textContent=len+' / '+max;
+  el.classList.toggle('warn',len>max*0.9);
+}
+
+function generate(){
+  const headline=document.getElementById('inHeadline').value.trim();
+  if(!headline){
+    const s=document.getElementById('statusMsg');
+    s.textContent='Please enter a headline before generating.';
+    s.className='status-msg error'; return;
+  }
+  document.getElementById('statusMsg').className='status-msg';
+  document.getElementById('loadingBar').classList.add('active');
+  document.getElementById('eHeadline').value=headline;
+  document.getElementById('eBody').value=document.getElementById('inBody').value.trim();
+  document.getElementById('eLabel').value=document.getElementById('inLabel').value.trim();
+  setTimeout(()=>{
+    drawCanvas(activeTmpl,headline,document.getElementById('inBody').value.trim(),document.getElementById('inLabel').value.trim());
+    document.getElementById('loadingBar').classList.remove('active');
+    document.getElementById('placeholder').style.display='none';
+    document.getElementById('outputCanvas').style.display='block';
+    document.getElementById('editCard').style.display='block';
+    generated=true;
+  },280);
+}
+
+function drawCanvas(t,headline,body,label){
+  const canvas=document.getElementById('outputCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=1200,H=627;
+  ctx.clearRect(0,0,W,H);
+  t.drawBg(ctx,W,H);
+
+  const padL=80, padR=80, textW=W-padL-padR;
+  let curY=0;
+
+  if(label){
+    ctx.font='600 26px "Source Sans 3",sans-serif';
+    const lw=ctx.measureText(label).width;
+    const pW=lw+40,pH=46,pR=6,pX=padL,pY=72;
+    ctx.fillStyle=t.labelBg;
+    ctx.beginPath(); ctx.roundRect(pX,pY,pW,pH,pR); ctx.fill();
+    ctx.fillStyle=t.labelColor; ctx.fillText(label,pX+20,pY+31);
+    curY=pY+pH+22;
+  } else {
+    curY=92;
+  }
+
+  const hSize=headline.length>55?56:headline.length>35?66:76;
+  ctx.font='700 '+hSize+'px "Playfair Display",serif';
+  ctx.fillStyle=t.headlineColor;
+  curY=wrapText(ctx,headline,padL,curY,textW,hSize*1.18)+32;
+
+  if(body){
+    ctx.font='400 29px "Source Sans 3",sans-serif';
+    ctx.fillStyle=t.bodyColor;
+    wrapText(ctx,body,padL,curY,textW*0.84,44);
+  }
+
+  ctx.font='500 20px "Playfair Display",serif';
+  ctx.fillStyle=t.wordmarkColor;
+  ctx.globalAlpha=t.wordmarkAlpha;
+  ctx.textAlign='right';
+  ctx.fillText('Arnold & Porter',W-52,H-28);
+  ctx.textAlign='left';
+  ctx.globalAlpha=1;
+}
+
+function wrapText(ctx,text,x,y,maxW,lineH){
+  const words=text.split(' '); let line='';
+  for(let i=0;i<words.length;i++){
+    const test=line+words[i]+' ';
+    if(ctx.measureText(test).width>maxW&&i>0){
+      ctx.fillText(line.trim(),x,y); line=words[i]+' '; y+=lineH;
+    } else { line=test; }
+  }
+  ctx.fillText(line.trim(),x,y); return y;
+}
+
+function liveRedraw(){
+  if(!generated) return;
+  drawCanvas(activeTmpl,document.getElementById('eHeadline').value,document.getElementById('eBody').value,document.getElementById('eLabel').value);
+}
+
+function dlImage(){
+  const a=document.createElement('a');
+  a.download='ap-social-image.png';
+  a.href=document.getElementById('outputCanvas').toDataURL('image/png');
+  a.click();
+}
+function shareLinkedIn(){
+  window.open('https://www.linkedin.com/shareArticle?mini=true&url='+encodeURIComponent('https://www.arnoldporter.com'),'_blank','width=600,height=500');
+}
+function shareFacebook(){
+  window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://www.arnoldporter.com'),'_blank','width=600,height=500');
+}
+function shareInstagram(){
+  alert('Instagram does not support direct web sharing. Download your image and upload it from the Instagram app.');
+  dlImage();
+}
+
+buildThumbs();
+</script>
+</body>
+</html>
