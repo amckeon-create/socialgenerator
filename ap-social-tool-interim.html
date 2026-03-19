@@ -394,9 +394,9 @@ function drawCanvas(t,headline,body,label){
     ctx.beginPath(); ctx.roundRect(padL,pY,pW,pH,6); ctx.fill();
     ctx.fillStyle=t.labelColor;
     ctx.fillText(label, padL+20, pY+(pH/2)+(fs*0.36));
-    curY=pY+pH+32;
+    curY=pY+pH+125;
   } else {
-    curY=100;
+    curY=130;
   }
 
   // HEADLINE
@@ -406,25 +406,39 @@ function drawCanvas(t,headline,body,label){
   ctx.fillStyle=t.headlineColor;
   const hLines=getWrappedLines(ctx,headline,textW);
   hLines.forEach((line,i)=>{ ctx.fillText(line, padL, curY+(i*hLineH)); });
-  curY+=hLines.length*hLineH+34;
+  curY+=hLines.length*hLineH+44;
 
-  // BODY
+  // BODY - respects hard returns, auto-sizes to fit
   if(body){
-    const bSize=28, bLineH=46;
+    // Split on hard returns first, then wrap each paragraph
+    const paragraphs = body.split('\n');
+    // Try font sizes from 56 down until all lines fit within remaining canvas height
+    const maxBodyHeight = H - curY - 40;
+    let bSize = 56;
+    let allLines = [];
+    while(bSize >= 22){
+      const bLineH = Math.round(bSize * 1.3);
+      ctx.font='400 '+bSize+'px "Source Sans 3",sans-serif';
+      allLines = [];
+      paragraphs.forEach(para => {
+        if(para.trim() === ''){
+          allLines.push({ text: '', empty: true });
+        } else {
+          const wrapped = getWrappedLines(ctx, para, textW * 0.82);
+          wrapped.forEach(line => allLines.push({ text: line, empty: false }));
+        }
+      });
+      const totalHeight = allLines.length * bLineH;
+      if(totalHeight <= maxBodyHeight) break;
+      bSize -= 2;
+    }
+    const bLineH = Math.round(bSize * 1.3);
     ctx.font='400 '+bSize+'px "Source Sans 3",sans-serif';
     ctx.fillStyle=t.bodyColor;
-    const bLines=getWrappedLines(ctx,body,textW*0.82);
-    bLines.forEach((line,i)=>{ ctx.fillText(line, padL, curY+(i*bLineH)); });
+    allLines.forEach((line, i) => {
+      if(!line.empty) ctx.fillText(line.text, padL, curY+(i*bLineH));
+    });
   }
-
-  // WORDMARK
-  ctx.font='500 20px "Playfair Display",serif';
-  ctx.fillStyle=t.wordmarkColor;
-  ctx.globalAlpha=t.wordmarkAlpha;
-  ctx.textAlign='right';
-  ctx.fillText('Arnold & Porter', W-52, H-28);
-  ctx.textAlign='left';
-  ctx.globalAlpha=1;
 }
 
 function liveRedraw(){
