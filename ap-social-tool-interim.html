@@ -328,67 +328,103 @@ function generate(){
   document.getElementById('eHeadline').value=headline;
   document.getElementById('eBody').value=document.getElementById('inBody').value.trim();
   document.getElementById('eLabel').value=document.getElementById('inLabel').value.trim();
+
+  // Test canvas support and report any errors
+  try {
+    const testCanvas = document.getElementById('outputCanvas');
+    if (!testCanvas) { showError('ERROR: Canvas element not found in DOM.'); return; }
+    const testCtx = testCanvas.getContext('2d');
+    if (!testCtx) { showError('ERROR: Canvas 2D context not available. Your browser or this page may be blocking canvas rendering.'); return; }
+    testCtx.fillStyle = '#ff0000';
+    testCtx.fillRect(0,0,10,10);
+    const pixel = testCtx.getImageData(0,0,1,1);
+    if (pixel.data[0] !== 255) { showError('ERROR: Canvas is present but appears to be blocked from drawing (possibly a security policy on this page).'); return; }
+  } catch(e) {
+    showError('ERROR during canvas test: ' + e.message); return;
+  }
+
   setTimeout(()=>{
-    drawCanvas(activeTmpl,headline,document.getElementById('inBody').value.trim(),document.getElementById('inLabel').value.trim());
-    document.getElementById('loadingBar').classList.remove('active');
-    document.getElementById('placeholder').style.display='none';
-    document.getElementById('outputCanvas').style.display='block';
-    document.getElementById('editCard').style.display='block';
-    generated=true;
+    try {
+      drawCanvas(activeTmpl,headline,document.getElementById('inBody').value.trim(),document.getElementById('inLabel').value.trim());
+      document.getElementById('loadingBar').classList.remove('active');
+      document.getElementById('placeholder').style.display='none';
+      document.getElementById('outputCanvas').style.display='block';
+      document.getElementById('editCard').style.display='block';
+      generated=true;
+    } catch(e) {
+      document.getElementById('loadingBar').classList.remove('active');
+      showError('ERROR drawing canvas: ' + e.message);
+    }
   },280);
+}
+
+function showError(msg){
+  const s=document.getElementById('statusMsg');
+  s.textContent=msg;
+  s.className='status-msg error';
+}
+
+function getWrappedLines(ctx,text,maxW){
+  const words=text.split(' '), lines=[]; let line='';
+  for(let i=0;i<words.length;i++){
+    const test=line+words[i]+' ';
+    if(ctx.measureText(test).width>maxW&&i>0){ lines.push(line.trim()); line=words[i]+' '; }
+    else { line=test; }
+  }
+  if(line.trim()) lines.push(line.trim());
+  return lines;
 }
 
 function drawCanvas(t,headline,body,label){
   const canvas=document.getElementById('outputCanvas');
   const ctx=canvas.getContext('2d');
-  const W=1200,H=627;
+  const W=1200, H=627;
   ctx.clearRect(0,0,W,H);
   t.drawBg(ctx,W,H);
 
-  const padL=80, padR=80, textW=W-padL-padR;
+  const padL=80, textW=W-160;
   let curY=0;
 
+  // LABEL PILL
   if(label){
-    ctx.font='600 26px "Source Sans 3",sans-serif';
-    const lw=ctx.measureText(label).width;
-    const pW=lw+40,pH=46,pR=6,pX=padL,pY=72;
+    const fs=26;
+    ctx.font='600 '+fs+'px "Source Sans 3",sans-serif';
+    const pW=ctx.measureText(label).width+40, pH=48, pY=68;
     ctx.fillStyle=t.labelBg;
-    ctx.beginPath(); ctx.roundRect(pX,pY,pW,pH,pR); ctx.fill();
-    ctx.fillStyle=t.labelColor; ctx.fillText(label,pX+20,pY+31);
-    curY=pY+pH+22;
+    ctx.beginPath(); ctx.roundRect(padL,pY,pW,pH,6); ctx.fill();
+    ctx.fillStyle=t.labelColor;
+    ctx.fillText(label, padL+20, pY+(pH/2)+(fs*0.36));
+    curY=pY+pH+32;
   } else {
-    curY=92;
+    curY=100;
   }
 
-  const hSize=headline.length>55?56:headline.length>35?66:76;
+  // HEADLINE
+  const hSize=headline.length>55?54:headline.length>35?64:74;
+  const hLineH=Math.round(hSize*1.25);
   ctx.font='700 '+hSize+'px "Playfair Display",serif';
   ctx.fillStyle=t.headlineColor;
-  curY=wrapText(ctx,headline,padL,curY,textW,hSize*1.18)+32;
+  const hLines=getWrappedLines(ctx,headline,textW);
+  hLines.forEach((line,i)=>{ ctx.fillText(line, padL, curY+(i*hLineH)); });
+  curY+=hLines.length*hLineH+34;
 
+  // BODY
   if(body){
-    ctx.font='400 29px "Source Sans 3",sans-serif';
+    const bSize=28, bLineH=46;
+    ctx.font='400 '+bSize+'px "Source Sans 3",sans-serif';
     ctx.fillStyle=t.bodyColor;
-    wrapText(ctx,body,padL,curY,textW*0.84,44);
+    const bLines=getWrappedLines(ctx,body,textW*0.82);
+    bLines.forEach((line,i)=>{ ctx.fillText(line, padL, curY+(i*bLineH)); });
   }
 
+  // WORDMARK
   ctx.font='500 20px "Playfair Display",serif';
   ctx.fillStyle=t.wordmarkColor;
   ctx.globalAlpha=t.wordmarkAlpha;
   ctx.textAlign='right';
-  ctx.fillText('Arnold & Porter',W-52,H-28);
+  ctx.fillText('Arnold & Porter', W-52, H-28);
   ctx.textAlign='left';
   ctx.globalAlpha=1;
-}
-
-function wrapText(ctx,text,x,y,maxW,lineH){
-  const words=text.split(' '); let line='';
-  for(let i=0;i<words.length;i++){
-    const test=line+words[i]+' ';
-    if(ctx.measureText(test).width>maxW&&i>0){
-      ctx.fillText(line.trim(),x,y); line=words[i]+' '; y+=lineH;
-    } else { line=test; }
-  }
-  ctx.fillText(line.trim(),x,y); return y;
 }
 
 function liveRedraw(){
