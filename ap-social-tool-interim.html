@@ -284,7 +284,7 @@
           Instagram
         </button>
       </div>
-      <p class="ig-note">LinkedIn and Facebook open a share dialog. For Instagram, download the image first and upload via the app.</p>
+      <p class="ig-note">Each button downloads your image and opens the platform — then create a new post and attach the downloaded file.</p>
     </div>
   </div>
 </div>
@@ -695,14 +695,16 @@ function dlImage(){
   a.click();
 }
 function shareLinkedIn(){
-  window.open('https://www.linkedin.com/shareArticle?mini=true&url='+encodeURIComponent('https://www.arnoldporter.com'),'_blank','width=600,height=500');
+  dlImage();
+  setTimeout(()=>{ window.open('https://www.linkedin.com/feed/','_blank'); }, 400);
 }
 function shareFacebook(){
-  window.open('https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent('https://www.arnoldporter.com'),'_blank','width=600,height=500');
+  dlImage();
+  setTimeout(()=>{ window.open('https://www.facebook.com/','_blank'); }, 400);
 }
 function shareInstagram(){
-  alert('Instagram does not support direct web sharing. Download your image and upload it from the Instagram app.');
   dlImage();
+  setTimeout(()=>{ window.open('https://www.instagram.com/','_blank'); }, 400);
 }
 
 buildThumbs();
