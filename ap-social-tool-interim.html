@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arnold & Porter — Social Image Generator v2</title>
+<title>Arnold & Porter — Social Image Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -18,113 +18,104 @@
     --off-white: #F5F6F8;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Source Sans 3', sans-serif;
-    background: var(--off-white);
-    color: var(--dark-blue);
-    min-height: 100vh;
-  }
-  header {
-    background: var(--dark-blue);
-    padding: 0 48px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 3px solid var(--yellow);
-  }
+  body { font-family: 'Source Sans 3', sans-serif; background: var(--off-white); color: var(--dark-blue); min-height: 100vh; }
+
+  header { background: var(--dark-blue); padding: 0 48px; height: 64px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--yellow); }
   .logo { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--white); }
   .logo em { color: var(--yellow); font-style: normal; }
   .header-tag { font-size: 11px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gray); }
 
   .app { display: grid; grid-template-columns: 400px 1fr; min-height: calc(100vh - 67px); }
 
-  /* FORM */
-  .form-panel { background: var(--white); border-right: 1px solid var(--light-gray); padding: 36px 32px 48px; overflow-y: auto; }
-  .form-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--dark-blue); margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid var(--light-gray); }
-  .field { margin-bottom: 20px; }
+  /* FORM PANEL */
+  .form-panel { background: var(--white); border-right: 1px solid var(--light-gray); padding: 32px 28px 48px; overflow-y: auto; }
+  .form-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--dark-blue); margin-bottom: 24px; padding-bottom: 14px; border-bottom: 2px solid var(--light-gray); }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--dark-gray); margin-bottom: 10px; display: block; }
+  .field { margin-bottom: 18px; }
   .field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--dark-gray); margin-bottom: 7px; }
-  .field input, .field textarea { width: 100%; border: 1.5px solid var(--light-gray); border-radius: 3px; padding: 11px 13px; font-family: 'Source Sans 3', sans-serif; font-size: 14px; color: var(--dark-blue); background: var(--white); transition: border-color 0.18s; outline: none; line-height: 1.5; }
+  .field input, .field textarea { width: 100%; border: 1.5px solid var(--light-gray); border-radius: 3px; padding: 10px 12px; font-family: 'Source Sans 3', sans-serif; font-size: 14px; color: var(--dark-blue); background: var(--white); transition: border-color 0.18s; outline: none; line-height: 1.5; }
   .field input:focus, .field textarea:focus { border-color: var(--primary-blue); }
-  .field textarea { resize: vertical; min-height: 76px; }
-  .field-hint { font-size: 11.5px; color: var(--dark-gray); margin-top: 5px; line-height: 1.45; }
-  .char-row { display: flex; justify-content: flex-end; margin-top: 4px; }
+  .field textarea { resize: vertical; min-height: 72px; }
+  .field-hint { font-size: 11px; color: var(--dark-gray); margin-top: 4px; line-height: 1.45; }
+  .char-row { display: flex; justify-content: flex-end; margin-top: 3px; }
   .char-count { font-size: 11px; color: var(--dark-gray); }
   .char-count.warn { color: #c0392b; font-weight: 600; }
+  .divider { height: 1px; background: var(--light-gray); margin: 20px 0; }
 
-  /* PHOTO UPLOAD */
-  .photo-upload-area {
-    border: 2px dashed var(--light-gray);
-    border-radius: 6px;
-    padding: 20px 16px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    background: var(--off-white);
-    position: relative;
-  }
-  .photo-upload-area:hover { border-color: var(--primary-blue); background: #eef5fb; }
-  .photo-upload-area.has-photo { border-color: var(--primary-blue); border-style: solid; background: #eef5fb; }
-  .photo-upload-area input[type="file"] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-  }
-  .upload-preview {
-    display: none;
-    align-items: center;
-    gap: 14px;
-    text-align: left;
-  }
-  .upload-preview.visible { display: flex; }
-  .upload-thumb {
-    width: 52px; height: 52px; border-radius: 50%;
-    object-fit: cover; border: 2px solid var(--primary-blue);
-    flex-shrink: 0;
-  }
-  .upload-info { flex: 1; min-width: 0; }
-  .upload-filename { font-size: 13px; font-weight: 600; color: var(--dark-blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .upload-change { font-size: 11px; color: var(--primary-blue); margin-top: 3px; cursor: pointer; }
-  .upload-placeholder { pointer-events: none; }
-  .upload-placeholder svg { margin-bottom: 8px; opacity: 0.4; }
-  .upload-placeholder p { font-size: 13px; color: var(--dark-gray); margin-bottom: 3px; }
-  .upload-placeholder span { font-size: 11px; color: var(--gray); }
-
-  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; color: var(--dark-gray); margin-bottom: 10px; display: block; }
-  .tmpl-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 26px; }
+  /* TEMPLATE PICKER */
+  .tmpl-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-bottom: 22px; }
   .tmpl-btn { cursor: pointer; border-radius: 4px; overflow: hidden; border: 2.5px solid var(--light-gray); transition: border-color 0.15s, transform 0.12s; position: relative; background: none; padding: 0; }
   .tmpl-btn:hover { border-color: var(--primary-blue); transform: translateY(-2px); }
   .tmpl-btn.active { border-color: var(--yellow); }
   .tmpl-btn.active::after { content: '✓'; position: absolute; top: 3px; right: 4px; background: var(--yellow); color: var(--dark-blue); font-size: 9px; font-weight: 800; width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 15px; text-align: center; }
   .tmpl-thumb { width: 100%; aspect-ratio: 1200/627; display: block; }
-  .tmpl-name { font-size: 9px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--dark-gray); text-align: center; padding: 5px 2px; background: var(--off-white); }
+  .tmpl-name { font-size: 9px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--dark-gray); text-align: center; padding: 4px 2px; background: var(--off-white); }
 
-  .divider { height: 1px; background: var(--light-gray); margin: 24px 0; }
-  .section-header { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dark-blue); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--light-gray); }
+  /* PHOTO COUNT SELECTOR — 7 buttons in a row */
+  .photo-count-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 18px; }
+  .photo-count-btn {
+    cursor: pointer; border-radius: 4px; border: 2px solid var(--light-gray);
+    background: var(--white); padding: 8px 4px 7px; text-align: center;
+    transition: border-color 0.15s, background 0.15s; display: flex;
+    flex-direction: column; align-items: center; gap: 5px;
+  }
+  .photo-count-btn:hover { border-color: var(--primary-blue); }
+  .photo-count-btn.active { border-color: var(--yellow); background: #fffbf0; }
+  .pc-dots { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px; min-height: 20px; width: 28px; }
+  .pc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gray); }
+  .photo-count-btn.active .pc-dot { background: var(--dark-blue); }
+  .pc-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; color: var(--dark-gray); }
+  .photo-count-btn.active .pc-label { color: var(--dark-blue); }
 
-  .btn-generate { width: 100%; background: var(--dark-blue); color: var(--white); border: none; border-radius: 3px; padding: 15px; font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: background 0.2s; margin-top: 4px; }
+  /* PHOTO UPLOAD SLOTS — generated dynamically */
+  #photoSlots { display: none; }
+  #photoSlots.visible { display: block; margin-bottom: 4px; }
+  .slots-grid-1 { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .slots-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .slots-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .photo-slot { display: flex; flex-direction: column; gap: 6px; }
+  .upload-area {
+    border: 2px dashed var(--light-gray); border-radius: 4px; padding: 10px 6px 8px;
+    text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s;
+    background: var(--off-white); position: relative;
+  }
+  .upload-area:hover { border-color: var(--primary-blue); background: #f0f6fb; }
+  .upload-area.has-photo { border-color: var(--primary-blue); border-style: solid; background: #eef5fb; }
+  .upload-area input[type="file"] { display: none; }
+  .ua-thumb { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-blue); margin: 0 auto 4px; display: block; }
+  .ua-icon { font-size: 18px; margin-bottom: 3px; }
+  .ua-text { font-size: 10px; color: var(--dark-gray); line-height: 1.3; }
+  .ua-text strong { color: var(--dark-blue); display: block; }
+  .slot-caption { width: 100%; border: 1.5px solid var(--light-gray); border-radius: 3px; padding: 6px 8px; font-family: 'Source Sans 3', sans-serif; font-size: 12px; color: var(--dark-blue); background: var(--white); outline: none; }
+  .slot-caption:focus { border-color: var(--primary-blue); }
+  .slot-caption::placeholder { color: var(--gray); }
+  .slot-num { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--dark-gray); text-align: center; margin-bottom: 2px; }
+
+  /* GENERATE */
+  .btn-generate { width: 100%; background: var(--dark-blue); color: var(--white); border: none; border-radius: 3px; padding: 14px; font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: background 0.2s; margin-top: 4px; }
   .btn-generate:hover { background: #142a54; }
-  .status-msg { font-size: 13px; padding: 10px 13px; border-radius: 3px; margin-top: 10px; display: none; }
+  .status-msg { font-size: 13px; padding: 9px 12px; border-radius: 3px; margin-top: 8px; display: none; }
   .status-msg.error { background: #fde8e8; color: #c0392b; display: block; }
 
   /* PREVIEW */
-  .preview-panel { padding: 36px 44px 48px; display: flex; flex-direction: column; align-items: flex-start; }
-  .preview-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--dark-blue); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--light-gray); width: 100%; }
-  .canvas-wrap { width: 100%; max-width: 800px; }
+  .preview-panel { padding: 32px 40px 48px; display: flex; flex-direction: column; align-items: flex-start; }
+  .preview-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--dark-blue); margin-bottom: 22px; padding-bottom: 14px; border-bottom: 2px solid var(--light-gray); width: 100%; }
+  .canvas-wrap { width: 100%; max-width: 820px; }
   .placeholder { width: 100%; aspect-ratio: 1200/627; background: var(--white); border: 2px dashed var(--light-gray); border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--gray); }
   .placeholder p { font-size: 14px; }
   #outputCanvas { width: 100%; height: auto; display: none; border-radius: 4px; box-shadow: 0 6px 36px rgba(27,55,105,0.14); }
-
   .loading-bar { width: 100%; height: 3px; background: var(--light-gray); border-radius: 2px; margin-top: 10px; overflow: hidden; display: none; }
   .loading-bar.active { display: block; }
   .loading-fill { height: 100%; background: var(--primary-blue); border-radius: 2px; animation: loadAnim 1.6s ease-in-out infinite; }
-  @keyframes loadAnim { 0% { width: 0%; margin-left: 0; } 50% { width: 65%; margin-left: 20%; } 100% { width: 0%; margin-left: 100%; } }
+  @keyframes loadAnim { 0%{width:0%;margin-left:0} 50%{width:65%;margin-left:20%} 100%{width:0%;margin-left:100%} }
 
-  .edit-card { width: 100%; max-width: 800px; background: var(--white); border: 1px solid var(--light-gray); border-radius: 4px; padding: 22px 24px 20px; margin-top: 22px; display: none; }
-  .edit-card h3 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 14px; color: var(--dark-blue); }
-  .edit-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  /* EDIT CARD */
+  .edit-card { width: 100%; max-width: 820px; background: var(--white); border: 1px solid var(--light-gray); border-radius: 4px; padding: 20px 22px 18px; margin-top: 20px; display: none; }
+  .edit-card h3 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 12px; color: var(--dark-blue); }
+  .edit-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
   .edit-row .field { margin-bottom: 0; }
-
-  .action-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .btn { padding: 11px 20px; border-radius: 3px; font-family: 'Source Sans 3', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; cursor: pointer; border: none; transition: all 0.18s; display: inline-flex; align-items: center; gap: 7px; }
+  .action-row { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
+  .btn { padding: 10px 18px; border-radius: 3px; font-family: 'Source Sans 3', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; cursor: pointer; border: none; transition: all 0.18s; display: inline-flex; align-items: center; gap: 7px; }
   .btn-download { background: var(--yellow); color: var(--dark-blue); }
   .btn-download:hover { background: #d9a018; }
   .btn-linkedin { background: #0077B5; color: #fff; }
@@ -132,25 +123,9 @@
   .btn-facebook { background: #1877F2; color: #fff; }
   .btn-facebook:hover { background: #0c5ecf; }
   .btn-instagram { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color: #fff; }
-  .share-sep { width: 1px; height: 28px; background: var(--light-gray); margin: 0 4px; }
+  .share-sep { width: 1px; height: 26px; background: var(--light-gray); margin: 0 3px; }
   .share-label { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dark-gray); }
-  .ig-note { font-size: 11.5px; color: var(--dark-gray); margin-top: 10px; line-height: 1.5; }
-
-  /* PHOTO TOGGLE CHECKBOX */
-  .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; cursor: pointer; user-select: none; }
-  .toggle-row input[type="checkbox"] { display: none; }
-  .toggle-box {
-    width: 18px; height: 18px; border-radius: 3px; border: 2px solid var(--light-gray);
-    background: var(--white); flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, border-color 0.15s;
-  }
-  .toggle-row input:checked + .toggle-box { background: var(--dark-blue); border-color: var(--dark-blue); }
-  .toggle-box svg { display: none; }
-  .toggle-row input:checked + .toggle-box svg { display: block; }
-  .toggle-label { font-size: 14px; color: var(--dark-blue); font-weight: 500; }
-
-  .photo-fields { display: none; }
-  .photo-fields.visible { display: block; }
+  .ig-note { font-size: 11px; color: var(--dark-gray); margin-top: 9px; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -161,7 +136,6 @@
 </header>
 
 <div class="app">
-
   <div class="form-panel">
     <div class="form-title">Create Your Image</div>
 
@@ -170,53 +144,14 @@
 
     <div class="divider"></div>
 
-    <div class="section-header">Photo</div>
+    <!-- PHOTO COUNT SELECTOR -->
+    <span class="section-label">Number of Photos</span>
+    <div class="photo-count-row" id="photoCountRow"></div>
 
-    <label class="toggle-row" onclick="togglePhotoSection()">
-      <input type="checkbox" id="includePhoto">
-      <div class="toggle-box">
-        <svg width="11" height="9" viewBox="0 0 11 9" fill="none">
-          <path d="M1 4L4 7.5L10 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <span class="toggle-label">Include a headshot</span>
-    </label>
-
-    <div class="photo-fields" id="photoFields">
-      <div class="field">
-        <label>Attorney Headshot</label>
-        <div class="photo-upload-area" id="uploadArea">
-          <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
-          <div class="upload-placeholder" id="uploadPlaceholder">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <circle cx="16" cy="16" r="14" stroke="#C3C3C3" stroke-width="1.5"/>
-              <path d="M10 20 C10 20 11 16 16 16 C21 16 22 20 22 20" stroke="#C3C3C3" stroke-width="1.5" stroke-linecap="round"/>
-              <circle cx="16" cy="12" r="3" stroke="#C3C3C3" stroke-width="1.5"/>
-            </svg>
-            <p>Click to upload a headshot</p>
-            <span>JPG, PNG — recommended 400×500px or larger</span>
-          </div>
-          <div class="upload-preview" id="uploadPreview">
-            <img class="upload-thumb" id="uploadThumb" src="" alt="Preview">
-            <div class="upload-info">
-              <div class="upload-filename" id="uploadFilename">photo.jpg</div>
-              <div class="upload-change">Click to change photo</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Photo Caption <span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:11px;">(attorney name)</span></label>
-        <input type="text" id="inCaption" placeholder="e.g. Marcus A. Asner, Partner" maxlength="60" oninput="updateChar('inCaption','ccCaption',60); if(generated) liveRedraw();">
-        <div class="char-row"><span class="char-count" id="ccCaption">0 / 60</span></div>
-        <p class="field-hint">Displayed below the headshot on the image.</p>
-      </div>
-    </div>
+    <!-- DYNAMIC PHOTO SLOTS -->
+    <div id="photoSlots"></div>
 
     <div class="divider"></div>
-
-    <div class="section-header">Text</div>
 
     <div class="field">
       <label>Headline</label>
@@ -284,24 +219,25 @@
           Instagram
         </button>
       </div>
-      <p class="ig-note">Each button downloads your image and opens the platform — then create a new post and attach the downloaded file.</p>
+      <p class="ig-note">LinkedIn and Facebook open a share dialog. For Instagram, download the image and upload via the app.</p>
     </div>
   </div>
 </div>
 
 <script>
+// ── BRAND COLORS ──────────────────────────────────────────────────
 const C = {
   darkBlue:'#1B3769', blue:'#4593C5', yellow:'#F1B51C',
   gray:'#C3C3C3', lightBlue:'#D2E5F1', darkGray:'#898B8E',
   lightGray:'#E0E1E2', white:'#ffffff'
 };
 
+// ── TEMPLATES ─────────────────────────────────────────────────────
 const TEMPLATES = [
   {
     id:'flagship', name:'Flagship',
     headlineColor:C.white, bodyColor:C.lightBlue,
     labelBg:C.yellow, labelColor:C.darkBlue,
-    captionColor:C.white, circleBorder:C.yellow,
     drawBg(ctx,W,H){
       ctx.fillStyle=C.darkBlue; ctx.fillRect(0,0,W,H);
       ctx.save(); ctx.globalAlpha=0.07; ctx.fillStyle=C.blue;
@@ -310,15 +246,13 @@ const TEMPLATES = [
       for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
       for(let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
       ctx.restore();
-      ctx.fillStyle=C.yellow; ctx.fillRect(0,H-7,W,7);
-      ctx.fillStyle=C.yellow; ctx.fillRect(0,0,6,H-7);
+      ctx.fillStyle=C.yellow; ctx.fillRect(0,H-7,W,7); ctx.fillRect(0,0,6,H-7);
     }
   },
   {
     id:'clean', name:'Clean',
     headlineColor:C.darkBlue, bodyColor:C.darkGray,
     labelBg:C.lightBlue, labelColor:C.darkBlue,
-    captionColor:C.darkBlue, circleBorder:C.blue,
     drawBg(ctx,W,H){
       ctx.fillStyle=C.white; ctx.fillRect(0,0,W,H);
       ctx.fillStyle=C.darkBlue; ctx.fillRect(0,0,W,12);
@@ -326,9 +260,7 @@ const TEMPLATES = [
       ctx.save(); ctx.globalAlpha=0.055; ctx.fillStyle=C.blue; ctx.fillRect(W*0.7,0,W*0.3,H); ctx.restore();
       ctx.fillStyle=C.yellow; ctx.fillRect(0,12,6,H-14);
       ctx.save(); ctx.globalAlpha=0.12; ctx.fillStyle=C.blue;
-      for(let x=W*0.74;x<W-20;x+=28){
-        for(let y=22;y<H*0.55;y+=28){ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill();}
-      }
+      for(let x=W*0.74;x<W-20;x+=28){for(let y=22;y<H*0.55;y+=28){ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill();}}
       ctx.restore();
     }
   },
@@ -336,7 +268,6 @@ const TEMPLATES = [
     id:'sky', name:'Sky',
     headlineColor:C.darkBlue, bodyColor:'#2a4a7a',
     labelBg:C.darkBlue, labelColor:C.white,
-    captionColor:C.darkBlue, circleBorder:C.darkBlue,
     drawBg(ctx,W,H){
       ctx.fillStyle=C.lightBlue; ctx.fillRect(0,0,W,H);
       ctx.save(); ctx.globalAlpha=0.14; ctx.fillStyle=C.blue;
@@ -353,7 +284,6 @@ const TEMPLATES = [
     id:'gold', name:'Gold',
     headlineColor:C.darkBlue, bodyColor:'#2a3a5a',
     labelBg:C.darkBlue, labelColor:C.white,
-    captionColor:C.darkBlue, circleBorder:C.darkBlue,
     drawBg(ctx,W,H){
       ctx.fillStyle=C.yellow; ctx.fillRect(0,0,W,H);
       ctx.save(); ctx.globalAlpha=0.1; ctx.fillStyle=C.darkBlue;
@@ -369,7 +299,6 @@ const TEMPLATES = [
     id:'slate', name:'Slate',
     headlineColor:C.white, bodyColor:C.gray,
     labelBg:C.blue, labelColor:C.white,
-    captionColor:C.gray, circleBorder:C.blue,
     drawBg(ctx,W,H){
       ctx.fillStyle='#22263a'; ctx.fillRect(0,0,W,H);
       const g=ctx.createLinearGradient(W*0.5,0,W,0);
@@ -383,331 +312,592 @@ const TEMPLATES = [
   }
 ];
 
+// ── STATE ─────────────────────────────────────────────────────────
 let activeTmpl = TEMPLATES[0];
 let generated = false;
-let uploadedImage = null; // holds the HTMLImageElement after upload
+let photoCount = 0;
+// photos[i] = HTMLImageElement or null, for slots 0..5
+const photos = [null, null, null, null, null, null];
 
-// ── Photo toggle ──────────────────────────────────────────────────────────────
-function togglePhotoSection(){
-  // Checkbox state toggles on the next tick (after the label click propagates)
-  setTimeout(()=>{
-    const checked = document.getElementById('includePhoto').checked;
-    document.getElementById('photoFields').classList.toggle('visible', checked);
-    // If unchecked, clear uploaded image and redraw
-    if(!checked){
-      uploadedImage = null;
-      document.getElementById('uploadPreview').classList.remove('visible');
-      document.getElementById('uploadPlaceholder').style.display = '';
-      document.getElementById('uploadArea').classList.remove('has-photo');
+// ── PHOTO COUNT SELECTOR — build 7 buttons (0–6) ──────────────────
+const DOT_LAYOUTS = [
+  [],                              // 0
+  [[0,0]],                         // 1
+  [[0,0],[0,1]],                   // 2
+  [[0,0],[0,1],[0,2]],             // 3
+  [[0,0],[0,1],[1,0],[1,1]],       // 4
+  [[0,0],[0,1],[0,2],[1,0],[1,1]], // 5
+  [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2]], // 6
+];
+const COUNT_LABELS = ['None','1 Photo','2 Photos','3 Photos','4 Photos','5 Photos','6 Photos'];
+
+function buildPhotoCountRow() {
+  const row = document.getElementById('photoCountRow');
+  for (let n = 0; n <= 6; n++) {
+    const btn = document.createElement('button');
+    btn.className = 'photo-count-btn' + (n === 0 ? ' active' : '');
+    btn.title = COUNT_LABELS[n];
+    btn.onclick = () => setPhotoCount(n);
+
+    // Dot grid
+    const dotsEl = document.createElement('div');
+    dotsEl.className = 'pc-dots';
+    if (n === 0) {
+      // dash icon for "none"
+      dotsEl.innerHTML = '<svg width="16" height="3" viewBox="0 0 16 3"><rect width="16" height="3" rx="1.5" fill="#C3C3C3"/></svg>';
+    } else {
+      // Use a 3-column mini-grid
+      const rows = n <= 3 ? 1 : 2;
+      const cols = n <= 3 ? n : Math.ceil(n / 2);
+      dotsEl.style.display = 'grid';
+      dotsEl.style.gridTemplateColumns = `repeat(${cols}, 7px)`;
+      dotsEl.style.gap = '3px';
+      for (let i = 0; i < n; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'pc-dot';
+        dotsEl.appendChild(dot);
+      }
     }
-    if(generated) liveRedraw();
-  }, 0);
+
+    const lbl = document.createElement('div');
+    lbl.className = 'pc-label';
+    lbl.textContent = n === 0 ? 'None' : n;
+
+    btn.appendChild(dotsEl);
+    btn.appendChild(lbl);
+    row.appendChild(btn);
+  }
 }
 
-// ── Photo upload ──────────────────────────────────────────────────────────────
-function handlePhotoUpload(event){
-  const file = event.target.files[0];
-  if(!file) return;
+// ── PHOTO SLOT PANEL — build upload slots for n photos ───────────
+function setPhotoCount(n) {
+  photoCount = n;
+  // Update button states
+  document.querySelectorAll('.photo-count-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === n);
+  });
+  buildPhotoSlots(n);
+  if (generated) liveRedraw();
+}
+
+function buildPhotoSlots(n) {
+  const container = document.getElementById('photoSlots');
+  container.innerHTML = '';
+  if (n === 0) {
+    container.classList.remove('visible');
+    return;
+  }
+  container.classList.add('visible');
+
+  // Grid class: 1 col for 1 photo, 2 cols for 2/4, 3 cols for 3/5/6
+  let gridClass = 'slots-grid-2';
+  if (n === 1) gridClass = 'slots-grid-1';
+  else if (n === 3 || n === 5 || n === 6) gridClass = 'slots-grid-3';
+
+  const grid = document.createElement('div');
+  grid.className = gridClass;
+
+  for (let i = 0; i < n; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'photo-slot';
+
+    // Slot number label
+    const numLbl = document.createElement('div');
+    numLbl.className = 'slot-num';
+    numLbl.textContent = 'Photo ' + (i + 1);
+    slot.appendChild(numLbl);
+
+    // Upload area
+    const area = document.createElement('div');
+    area.className = 'upload-area' + (photos[i] ? ' has-photo' : '');
+    area.dataset.slot = i;
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.id = 'fileInput_' + i;
+    fileInput.dataset.slot = i;
+    fileInput.onchange = function() { handleUpload(i, this); };
+    area.appendChild(fileInput);
+
+    if (photos[i]) {
+      const thumb = document.createElement('img');
+      thumb.src = photos[i].src;
+      thumb.className = 'ua-thumb';
+      area.appendChild(thumb);
+      const txt = document.createElement('div');
+      txt.className = 'ua-text';
+      txt.innerHTML = '<strong>Photo loaded</strong>Click to replace';
+      area.appendChild(txt);
+    } else {
+      const icon = document.createElement('div');
+      icon.className = 'ua-icon';
+      icon.textContent = '📷';
+      area.appendChild(icon);
+      const txt = document.createElement('div');
+      txt.className = 'ua-text';
+      txt.innerHTML = '<strong>Upload Photo</strong>Click to select';
+      area.appendChild(txt);
+    }
+    area.onclick = () => document.getElementById('fileInput_' + i).click();
+    slot.appendChild(area);
+
+    // Caption input
+    const capInput = document.createElement('input');
+    capInput.type = 'text';
+    capInput.className = 'slot-caption';
+    capInput.id = 'caption_' + i;
+    capInput.placeholder = 'Name, Title';
+    // Preserve caption value across redraws if possible
+    const existingCap = document.getElementById('caption_' + i);
+    if (existingCap) capInput.value = existingCap.value;
+    capInput.oninput = () => { if (generated) liveRedraw(); };
+    slot.appendChild(capInput);
+
+    grid.appendChild(slot);
+  }
+  container.appendChild(grid);
+}
+
+function handleUpload(slotIndex, input) {
+  if (!input.files || !input.files[0]) return;
   const reader = new FileReader();
-  reader.onload = function(e){
+  reader.onload = (e) => {
     const img = new Image();
-    img.onload = function(){
-      uploadedImage = img;
-      // show thumbnail preview in the form
-      document.getElementById('uploadThumb').src = e.target.result;
-      document.getElementById('uploadFilename').textContent = file.name;
-      document.getElementById('uploadPlaceholder').style.display = 'none';
-      document.getElementById('uploadPreview').classList.add('visible');
-      document.getElementById('uploadArea').classList.add('has-photo');
-      if(generated) liveRedraw();
+    img.onload = () => {
+      photos[slotIndex] = img;
+      // Rebuild slots to show thumb (preserve caption values first)
+      const captions = [];
+      for (let i = 0; i < photoCount; i++) {
+        const el = document.getElementById('caption_' + i);
+        captions.push(el ? el.value : '');
+      }
+      buildPhotoSlots(photoCount);
+      // Restore captions
+      for (let i = 0; i < photoCount; i++) {
+        const el = document.getElementById('caption_' + i);
+        if (el) el.value = captions[i];
+      }
+      if (generated) liveRedraw();
     };
     img.src = e.target.result;
   };
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(input.files[0]);
 }
 
-// ── Draw the circular photo + caption on the right side ──────────────────────
-function drawPhoto(ctx, W, H, caption, captionColor, borderColor){
-  if(!uploadedImage) return;
-
-  // Circle parameters — right side of canvas
-  const circleRadius = 200;
-  const circleX = W - 240;          // center X of circle
-  const circleY = H / 2 - 30;       // center Y, slightly above midpoint to leave room for caption
-
-  // Draw circular clip
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
-  ctx.clip();
-
-  // Determine crop: center the image in the circle
-  const img = uploadedImage;
-  const imgAspect = img.width / img.height;
-  const circleDiameter = circleRadius * 2;
-
-  let sx, sy, sw, sh;
-  if(imgAspect > 1){
-    // wider than tall — crop sides
-    sh = img.height;
-    sw = img.height;
-    sx = (img.width - sw) / 2;
-    sy = 0;
-  } else {
-    // taller than wide (portrait) — crop top/bottom slightly to center face
-    sw = img.width;
-    sh = img.width;
-    // For portrait headshots, face is usually in top ~60% — offset crop upward
-    sy = Math.max(0, img.height * 0.05);
-    sy = Math.min(sy, img.height - sw);
-    sx = 0;
-  }
-
-  ctx.drawImage(
-    img,
-    sx, sy, sw, sh,                                    // source crop
-    circleX - circleRadius, circleY - circleRadius,    // dest X, Y
-    circleDiameter, circleDiameter                     // dest size
-  );
-  ctx.restore();
-
-  // Circle border ring
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(circleX, circleY, circleRadius + 5, 0, Math.PI * 2);
-  ctx.strokeStyle = borderColor;
-  ctx.lineWidth = 6;
-  ctx.stroke();
-  ctx.restore();
-
-  // Caption below circle
-  if(caption){
-    const capSize = 26;
-    ctx.font = '600 ' + capSize + 'px "Source Sans 3",sans-serif';
-    ctx.fillStyle = captionColor;
-    ctx.textAlign = 'center';
-    // Wrap caption if needed — max width = circle diameter + some padding
-    const maxCapW = 420;
-    const capLines = getWrappedLines(ctx, caption, maxCapW);
-    const capLineH = capSize * 1.35;
-    const capStartY = circleY + circleRadius + 46;
-    capLines.forEach((line, i) => {
-      ctx.fillText(line, circleX, capStartY + i * capLineH);
-    });
-    ctx.textAlign = 'left'; // reset
-  }
-}
-
-// ── Template thumbnails ───────────────────────────────────────────────────────
-function buildThumbs(){
-  const grid=document.getElementById('tmplGrid');
-  TEMPLATES.forEach((t,i)=>{
-    const btn=document.createElement('button');
-    btn.className='tmpl-btn'+(i===0?' active':'');
-    const c=document.createElement('canvas');
-    c.width=240; c.height=125; c.className='tmpl-thumb';
-    const ctx=c.getContext('2d');
-    ctx.save(); ctx.scale(240/1200,125/627); t.drawBg(ctx,1200,627); ctx.restore();
-    // tiny mock circle on right
-    ctx.save();
-    ctx.beginPath(); ctx.arc(196,53,22,0,Math.PI*2);
-    ctx.fillStyle=t.circleBorder+'44'; ctx.fill();
-    ctx.strokeStyle=t.circleBorder; ctx.lineWidth=2; ctx.stroke();
-    ctx.restore();
-    ctx.fillStyle=t.headlineColor; ctx.fillRect(18,26,100,9);
-    ctx.fillStyle=t.bodyColor+'99'; ctx.fillRect(18,41,76,5); ctx.fillRect(18,50,58,5);
-    ctx.fillStyle=t.labelBg; ctx.beginPath(); ctx.roundRect(18,94,68,13,3); ctx.fill();
+// ── TEMPLATE THUMBNAILS ───────────────────────────────────────────
+function buildThumbs() {
+  const grid = document.getElementById('tmplGrid');
+  TEMPLATES.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tmpl-btn' + (i === 0 ? ' active' : '');
+    const c = document.createElement('canvas');
+    c.width = 240; c.height = 125; c.className = 'tmpl-thumb';
+    const ctx = c.getContext('2d');
+    ctx.save(); ctx.scale(240/1200, 125/627); t.drawBg(ctx, 1200, 627); ctx.restore();
+    ctx.fillStyle = t.headlineColor; ctx.fillRect(18, 26, 110, 10);
+    ctx.fillStyle = t.bodyColor + '99'; ctx.fillRect(18, 42, 80, 6); ctx.fillRect(18, 52, 62, 6);
+    ctx.fillStyle = t.labelBg; ctx.beginPath(); ctx.roundRect(18, 96, 72, 14, 3); ctx.fill();
     btn.appendChild(c);
-    const lbl=document.createElement('div'); lbl.className='tmpl-name'; lbl.textContent=t.name;
+    const lbl = document.createElement('div'); lbl.className = 'tmpl-name'; lbl.textContent = t.name;
     btn.appendChild(lbl);
-    btn.onclick=()=>{
-      document.querySelectorAll('.tmpl-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active'); activeTmpl=t;
-      if(generated) liveRedraw();
+    btn.onclick = () => {
+      document.querySelectorAll('.tmpl-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active'); activeTmpl = t;
+      if (generated) liveRedraw();
     };
     grid.appendChild(btn);
   });
 }
 
-function updateChar(inputId,counterId,max){
-  const len=document.getElementById(inputId).value.length;
-  const el=document.getElementById(counterId);
-  el.textContent=len+' / '+max;
-  el.classList.toggle('warn',len>max*0.9);
+function updateChar(inputId, counterId, max) {
+  const len = document.getElementById(inputId).value.length;
+  const el = document.getElementById(counterId);
+  el.textContent = len + ' / ' + max;
+  el.classList.toggle('warn', len > max * 0.9);
 }
 
-// ── Generate ──────────────────────────────────────────────────────────────────
-function generate(){
-  const headline=document.getElementById('inHeadline').value.trim();
-  if(!headline){
-    const s=document.getElementById('statusMsg');
-    s.textContent='Please enter a headline before generating.';
-    s.className='status-msg error'; return;
+// ── GENERATE ─────────────────────────────────────────────────────
+function generate() {
+  const headline = document.getElementById('inHeadline').value.trim();
+  if (!headline) {
+    const s = document.getElementById('statusMsg');
+    s.textContent = 'Please enter a headline before generating.';
+    s.className = 'status-msg error'; return;
   }
-  document.getElementById('statusMsg').className='status-msg';
+  document.getElementById('statusMsg').className = 'status-msg';
   document.getElementById('loadingBar').classList.add('active');
-
-  const caption = document.getElementById('inCaption').value.trim();
-  document.getElementById('eHeadline').value=headline;
-  document.getElementById('eBody').value=document.getElementById('inBody').value.trim();
-  document.getElementById('eLabel').value=document.getElementById('inLabel').value.trim();
+  document.getElementById('eHeadline').value = headline;
+  document.getElementById('eBody').value = document.getElementById('inBody').value.trim();
+  document.getElementById('eLabel').value = document.getElementById('inLabel').value.trim();
 
   try {
-    const testCanvas=document.getElementById('outputCanvas');
-    if(!testCanvas){ showError('ERROR: Canvas element not found.'); return; }
-    const testCtx=testCanvas.getContext('2d');
-    if(!testCtx){ showError('ERROR: Canvas 2D context not available.'); return; }
-  } catch(e){ showError('ERROR: '+e.message); return; }
+    const testCanvas = document.getElementById('outputCanvas');
+    const testCtx = testCanvas.getContext('2d');
+    if (!testCtx) { showError('ERROR: Canvas 2D context not available.'); return; }
+    testCtx.fillStyle = '#ff0000'; testCtx.fillRect(0, 0, 10, 10);
+    if (testCtx.getImageData(0, 0, 1, 1).data[0] !== 255) { showError('ERROR: Canvas drawing blocked on this page.'); return; }
+  } catch(e) { showError('ERROR: ' + e.message); return; }
 
-  setTimeout(()=>{
+  setTimeout(() => {
     try {
-      drawCanvas(
-        activeTmpl, headline,
+      drawCanvas(activeTmpl, headline,
         document.getElementById('inBody').value.trim(),
-        document.getElementById('inLabel').value.trim(),
-        caption
-      );
+        document.getElementById('inLabel').value.trim());
       document.getElementById('loadingBar').classList.remove('active');
-      document.getElementById('placeholder').style.display='none';
-      document.getElementById('outputCanvas').style.display='block';
-      document.getElementById('editCard').style.display='block';
-      generated=true;
-    } catch(e){
+      document.getElementById('placeholder').style.display = 'none';
+      document.getElementById('outputCanvas').style.display = 'block';
+      document.getElementById('editCard').style.display = 'block';
+      generated = true;
+    } catch(e) {
       document.getElementById('loadingBar').classList.remove('active');
-      showError('ERROR drawing canvas: '+e.message);
+      showError('ERROR drawing canvas: ' + e.message);
     }
-  },280);
+  }, 280);
 }
 
-function showError(msg){
-  const s=document.getElementById('statusMsg');
-  s.textContent=msg; s.className='status-msg error';
+function showError(msg) {
+  const s = document.getElementById('statusMsg');
+  s.textContent = msg; s.className = 'status-msg error';
 }
 
-// ── Text helpers ──────────────────────────────────────────────────────────────
-function getWrappedLines(ctx,text,maxW){
-  const words=text.split(' '), lines=[]; let line='';
-  for(let i=0;i<words.length;i++){
-    const test=line+words[i]+' ';
-    if(ctx.measureText(test).width>maxW&&i>0){ lines.push(line.trim()); line=words[i]+' '; }
-    else { line=test; }
+// ── TEXT UTILITIES ────────────────────────────────────────────────
+function getWrappedLines(ctx, text, maxW) {
+  const words = text.split(' '), lines = []; let line = '';
+  for (let i = 0; i < words.length; i++) {
+    const test = line + words[i] + ' ';
+    if (ctx.measureText(test).width > maxW && i > 0) { lines.push(line.trim()); line = words[i] + ' '; }
+    else { line = test; }
   }
-  if(line.trim()) lines.push(line.trim());
+  if (line.trim()) lines.push(line.trim());
   return lines;
 }
 
-// ── Main draw ─────────────────────────────────────────────────────────────────
-function drawCanvas(t, headline, body, label, caption){
-  const canvas=document.getElementById('outputCanvas');
-  const ctx=canvas.getContext('2d');
-  const W=1200, H=627;
-  ctx.clearRect(0,0,W,H);
-  t.drawBg(ctx,W,H);
+function drawAutoBody(ctx, t, body, padL, textW, curY, H) {
+  if (!body) return;
+  const paragraphs = body.split('\n');
+  const maxBodyHeight = H - curY - 30;
+  let bSize = 46;
+  let allLines = [];
+  while (bSize >= 16) {
+    const bLineH = Math.round(bSize * 1.3);
+    ctx.font = '400 ' + bSize + 'px "Source Sans 3",sans-serif';
+    allLines = [];
+    paragraphs.forEach(para => {
+      if (para.trim() === '') { allLines.push({ text: '', empty: true }); }
+      else { getWrappedLines(ctx, para, textW).forEach(l => allLines.push({ text: l, empty: false })); }
+    });
+    if (allLines.length * bLineH <= maxBodyHeight) break;
+    bSize -= 2;
+  }
+  const bLineH = Math.round(bSize * 1.3);
+  ctx.font = '400 ' + bSize + 'px "Source Sans 3",sans-serif';
+  ctx.fillStyle = t.bodyColor;
+  allLines.forEach((line, i) => { if (!line.empty) ctx.fillText(line.text, padL, curY + i * bLineH); });
+}
 
-  // Text column is narrower when a photo is present
-  const photoEnabled = document.getElementById('includePhoto').checked;
-  const hasPhoto = photoEnabled && !!uploadedImage;
-  const padL = 80;
-  // Right edge of text area — leave room for circle (radius 200, centered at W-240)
-  const textRightEdge = hasPhoto ? W - 480 : W - 80;
-  const textW = textRightEdge - padL;
+// ── CIRCLE PHOTO DRAW ─────────────────────────────────────────────
+function drawCirclePhoto(ctx, img, cx, cy, r) {
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
+  const scale = Math.max(r * 2 / img.width, r * 2 / img.height);
+  const sw = img.width * scale, sh = img.height * scale;
+  ctx.drawImage(img, cx - sw / 2, cy - sh / 2, sw, sh);
+  ctx.restore();
+  // Subtle ring
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.65)'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.arc(cx, cy, r + 2, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+}
+
+function drawPhotoPlaceholder(ctx, cx, cy, r, t) {
+  ctx.save();
+  ctx.globalAlpha = 0.13; ctx.fillStyle = t.headlineColor;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  ctx.save();
+  ctx.globalAlpha = 0.28; ctx.strokeStyle = t.headlineColor;
+  ctx.lineWidth = 2; ctx.setLineDash([7, 5]);
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+  if (r >= 40) {
+    ctx.save();
+    ctx.globalAlpha = 0.3;
+    ctx.font = '400 ' + Math.round(r * 0.22) + 'px "Source Sans 3",sans-serif';
+    ctx.fillStyle = t.headlineColor;
+    ctx.textAlign = 'center';
+    ctx.fillText('Photo', cx, cy + r * 0.08);
+    ctx.textAlign = 'left';
+    ctx.restore();
+  }
+}
+
+// ── CAPTION DRAW (centered under a circle) ────────────────────────
+function drawCaption(ctx, t, text, cx, maxW, topY, fontSize) {
+  if (!text) return 0;
+  ctx.font = '500 ' + fontSize + 'px "Source Sans 3",sans-serif';
+  ctx.fillStyle = t.bodyColor;
+  ctx.textAlign = 'center';
+  const lines = getWrappedLines(ctx, text, maxW);
+  const lineH = Math.round(fontSize * 1.28);
+  lines.forEach((line, i) => { ctx.fillText(line, cx, topY + i * lineH); });
+  ctx.textAlign = 'left';
+  return lines.length * lineH;
+}
+
+// ── DIVIDER LINE ──────────────────────────────────────────────────
+function drawDivider(ctx, t, padL, W, padR, y) {
+  ctx.save();
+  ctx.globalAlpha = 0.22; ctx.strokeStyle = t.headlineColor; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+  ctx.restore();
+}
+
+// ── LABEL PILL ────────────────────────────────────────────────────
+function drawLabel(ctx, t, label, padL, pY, maxW) {
+  const fs = 24;
+  ctx.font = '600 ' + fs + 'px "Source Sans 3",sans-serif';
+  const pH = 44;
+  const pW = Math.min(ctx.measureText(label).width + 40, maxW);
+  ctx.fillStyle = t.labelBg;
+  ctx.beginPath(); ctx.roundRect(padL, pY, pW, pH, 6); ctx.fill();
+  ctx.fillStyle = t.labelColor;
+  ctx.fillText(label, padL + 20, pY + pH / 2 + fs * 0.36);
+  return pH;
+}
+
+// ── HEADLINE ──────────────────────────────────────────────────────
+function drawHeadline(ctx, t, headline, padL, textW, curY, baseSize) {
+  const hSize = headline.length > 55 ? Math.round(baseSize * 0.70) :
+                headline.length > 35 ? Math.round(baseSize * 0.85) : baseSize;
+  const hLineH = Math.round(hSize * 1.22);
+  ctx.font = '700 ' + hSize + 'px "Playfair Display",serif';
+  ctx.fillStyle = t.headlineColor;
+  const hLines = getWrappedLines(ctx, headline, textW);
+  hLines.forEach((line, i) => { ctx.fillText(line, padL, curY + i * hLineH); });
+  return hLines.length * hLineH;
+}
+
+// ── MAIN CANVAS DRAW DISPATCHER ───────────────────────────────────
+function drawCanvas(t, headline, body, label) {
+  if (photoCount === 0) drawLayout0(t, headline, body, label);
+  else if (photoCount === 1) drawLayout1(t, headline, body, label);
+  else drawLayoutN(t, headline, body, label, photoCount);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// LAYOUT 0: No photos — full canvas text
+// ─────────────────────────────────────────────────────────────────
+function drawLayout0(t, headline, body, label) {
+  const canvas = document.getElementById('outputCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1200, H = 627;
+  ctx.clearRect(0, 0, W, H); t.drawBg(ctx, W, H);
+  const padL = 80, textW = W - 160;
   let curY = 0;
 
-  // LABEL PILL
-  if(label){
-    const fs=26;
-    ctx.font='600 '+fs+'px "Source Sans 3",sans-serif';
-    const pW=ctx.measureText(label).width+40, pH=48, pY=68;
-    // clamp pill width to text column
-    const clampedPW = Math.min(pW, textW);
-    ctx.fillStyle=t.labelBg;
-    ctx.beginPath(); ctx.roundRect(padL,pY,clampedPW,pH,6); ctx.fill();
-    ctx.fillStyle=t.labelColor;
-    ctx.fillText(label, padL+20, pY+(pH/2)+(fs*0.36));
-    curY=pY+pH+125;
-  } else {
-    curY=130;
-  }
+  if (label) {
+    const fs = 26;
+    ctx.font = '600 ' + fs + 'px "Source Sans 3",sans-serif';
+    const pW = ctx.measureText(label).width + 40, pH = 48, pY = 68;
+    ctx.fillStyle = t.labelBg; ctx.beginPath(); ctx.roundRect(padL, pY, pW, pH, 6); ctx.fill();
+    ctx.fillStyle = t.labelColor; ctx.fillText(label, padL + 20, pY + pH / 2 + fs * 0.36);
+    curY = pY + pH + 125;
+  } else { curY = 130; }
 
-  // HEADLINE
-  const hSize=headline.length>55?54:headline.length>35?64:74;
-  const hLineH=Math.round(hSize*1.25);
-  ctx.font='700 '+hSize+'px "Playfair Display",serif';
-  ctx.fillStyle=t.headlineColor;
-  const hLines=getWrappedLines(ctx,headline,textW);
-  hLines.forEach((line,i)=>{ ctx.fillText(line, padL, curY+(i*hLineH)); });
-  curY+=hLines.length*hLineH+44;
-
-  // BODY — respects hard returns, auto-sizes
-  if(body){
-    const paragraphs=body.split('\n');
-    const maxBodyHeight=H-curY-40;
-    let bSize=56;
-    let allLines=[];
-    while(bSize>=22){
-      const bLineH=Math.round(bSize*1.3);
-      ctx.font='400 '+bSize+'px "Source Sans 3",sans-serif';
-      allLines=[];
-      paragraphs.forEach(para=>{
-        if(para.trim()===''){
-          allLines.push({text:'',empty:true});
-        } else {
-          const wrapped=getWrappedLines(ctx,para,textW*0.82);
-          wrapped.forEach(line=>allLines.push({text:line,empty:false}));
-        }
-      });
-      const totalHeight=allLines.length*Math.round(bSize*1.3);
-      if(totalHeight<=maxBodyHeight) break;
-      bSize-=2;
-    }
-    const bLineH=Math.round(bSize*1.3);
-    ctx.font='400 '+bSize+'px "Source Sans 3",sans-serif';
-    ctx.fillStyle=t.bodyColor;
-    allLines.forEach((line,i)=>{
-      if(!line.empty) ctx.fillText(line.text, padL, curY+(i*bLineH));
-    });
-  }
-
-  // PHOTO — drawn on top so geometric bg elements don't bleed through the clip
-  if(hasPhoto){
-    drawPhoto(ctx, W, H, caption, t.captionColor, t.circleBorder);
-  }
+  const hLineH = drawHeadline(ctx, t, headline, padL, textW, curY, 74);
+  curY += hLineH + 44;
+  drawAutoBody(ctx, t, body, padL, textW * 0.82, curY, H);
 }
 
-// ── Live redraw from edit panel ───────────────────────────────────────────────
-function liveRedraw(){
-  if(!generated) return;
-  const caption = document.getElementById('inCaption').value.trim();
-  drawCanvas(
-    activeTmpl,
+// ─────────────────────────────────────────────────────────────────
+// LAYOUT 1: Single photo — circle right, text left
+// ─────────────────────────────────────────────────────────────────
+function drawLayout1(t, headline, body, label) {
+  const canvas = document.getElementById('outputCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1200, H = 627;
+  ctx.clearRect(0, 0, W, H); t.drawBg(ctx, W, H);
+
+  const photoZoneX = W * 0.63;
+  const photoCx = photoZoneX + (W - photoZoneX) / 2;
+  const photoCy = H / 2 - 20;
+  const photoR = 178;
+
+  if (photos[0]) { drawCirclePhoto(ctx, photos[0], photoCx, photoCy, photoR); }
+  else { drawPhotoPlaceholder(ctx, photoCx, photoCy, photoR, t); }
+
+  const cap = document.getElementById('caption_0') ? document.getElementById('caption_0').value.trim() : '';
+  if (cap) drawCaption(ctx, t, cap, photoCx, 340, photoCy + photoR + 50, 24);
+
+  const padL = 80, textW = photoZoneX - padL - 40;
+  let curY = 0;
+  if (label) {
+    const pH = drawLabel(ctx, t, label, padL, 68, textW);
+    curY = 68 + pH + 100;
+  } else { curY = 130; }
+  const hLineH = drawHeadline(ctx, t, headline, padL, textW, curY, 68);
+  curY += hLineH + 36;
+  drawAutoBody(ctx, t, body, padL, textW * 0.95, curY, H);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// LAYOUT N (2–6): Photos in rows at top, then label/headline/body
+//
+// Row configurations:
+//   2: [2]
+//   3: [3]
+//   4: [2, 2]   (or could be [4] but 2×2 looks better)
+//   5: [3, 2]
+//   6: [3, 3]
+// ─────────────────────────────────────────────────────────────────
+function drawLayoutN(t, headline, body, label, n) {
+  const canvas = document.getElementById('outputCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 1200, H = 627;
+  ctx.clearRect(0, 0, W, H); t.drawBg(ctx, W, H);
+
+  const padL = 72, padR = 72;
+  const usableW = W - padL - padR;
+
+  // ── Row configurations — always single row ──
+  const rowConfigs = {
+    2: [[0, 1]],
+    3: [[0, 1, 2]],
+    4: [[0, 1, 2, 3]],
+    5: [[0, 1, 2, 3, 4]],
+    6: [[0, 1, 2, 3, 4, 5]]
+  };
+  const rows = rowConfigs[n];
+  const numRows = 1;
+
+  // ── Radius sizing — computed to fit all circles in one row with 32px gaps ──
+  const gap = 32;
+  const photoR = Math.floor((usableW - (n - 1) * gap) / (n * 2));
+
+  // ── Vertical space budget ──
+  // Label pill top area, then photo rows, then text below
+  // Estimate how much vertical space photos + captions will take
+  const capFontSize = n <= 2 ? 22 : n <= 3 ? 20 : n <= 4 ? 18 : 16;
+  const capLineH = Math.round(capFontSize * 1.28);
+  const estimatedCapLines = 2; // conservative
+  const photoRowH = photoR * 2 + 14 + estimatedCapLines * capLineH; // circle diameter + gap + caption
+  const photoBlockH = photoRowH * numRows + (numRows - 1) * 22; // rows + inter-row gap
+  const dividerH = 20;
+
+  // Label pill
+  let curY = 32;
+  if (label) {
+    const fs = 22;
+    ctx.font = '600 ' + fs + 'px "Source Sans 3",sans-serif';
+    const pW = Math.min(ctx.measureText(label).width + 36, usableW), pH = 40;
+    ctx.fillStyle = t.labelBg;
+    ctx.beginPath(); ctx.roundRect(padL, curY, pW, pH, 6); ctx.fill();
+    ctx.fillStyle = t.labelColor;
+    ctx.fillText(label, padL + 18, curY + pH / 2 + fs * 0.36);
+    curY += pH + 18;
+  } else {
+    curY = 38;
+  }
+
+  // Track the actual bottom of captions across all rows
+  let photoBlockBottom = curY;
+
+  // ── Draw each row of photos ──
+  rows.forEach((rowSlots, rowIdx) => {
+    const nInRow = rowSlots.length;
+    const totalCircleW = nInRow * photoR * 2 + (nInRow - 1) * gap; // circles + gaps
+    const rowStartX = (W - totalCircleW) / 2;
+    const photoCy = curY + photoR;
+
+    rowSlots.forEach((slotIdx, col) => {
+      const cx = rowStartX + col * (photoR * 2 + gap) + photoR;
+      if (photos[slotIdx]) {
+        drawCirclePhoto(ctx, photos[slotIdx], cx, photoCy, photoR);
+      } else {
+        drawPhotoPlaceholder(ctx, cx, photoCy, photoR, t);
+      }
+    });
+
+    // Captions for this row
+    const capTopY = photoCy + photoR + 38;
+    let maxCapHeight = 0;
+    rowSlots.forEach((slotIdx, col) => {
+      const cx = rowStartX + col * (photoR * 2 + gap) + photoR;
+      const capEl = document.getElementById('caption_' + slotIdx);
+      const capText = capEl ? capEl.value.trim() : '';
+      if (capText) {
+        const h = drawCaption(ctx, t, capText, cx, photoR * 2, capTopY, capFontSize);
+        maxCapHeight = Math.max(maxCapHeight, h);
+      } else {
+        maxCapHeight = Math.max(maxCapHeight, capFontSize);
+      }
+    });
+
+    curY = capTopY + maxCapHeight + 18;
+    photoBlockBottom = curY;
+
+    // Inter-row gap (not after last row)
+    if (rowIdx < numRows - 1) curY += 10;
+  });
+
+  curY = photoBlockBottom;
+
+  curY += 36;
+
+  // Headline — size depends on how much space is left
+  const remainingH = H - curY - 20;
+  // Pick a base headline size that fits: try from large down
+  let hBase = n <= 3 ? 52 : 44;
+  {
+    let tries = 0;
+    while (hBase > 26 && tries < 20) {
+      const hSize = headline.length > 55 ? Math.round(hBase * 0.70) :
+                    headline.length > 35 ? Math.round(hBase * 0.85) : hBase;
+      ctx.font = '700 ' + hSize + 'px "Playfair Display",serif';
+      const hLines = getWrappedLines(ctx, headline, usableW);
+      const hBlock = hLines.length * Math.round(hSize * 1.22);
+      if (hBlock <= remainingH * 0.5) break; // leave half for body
+      hBase -= 2; tries++;
+    }
+  }
+  const hLineH = drawHeadline(ctx, t, headline, padL, usableW, curY, hBase);
+  curY += hLineH + 26;
+
+  // Body
+  drawAutoBody(ctx, t, body, padL, usableW * 0.9, curY, H);
+}
+
+function liveRedraw() {
+  if (!generated) return;
+  drawCanvas(activeTmpl,
     document.getElementById('eHeadline').value,
     document.getElementById('eBody').value,
-    document.getElementById('eLabel').value,
-    caption
-  );
+    document.getElementById('eLabel').value);
 }
 
-// ── Actions ───────────────────────────────────────────────────────────────────
-function dlImage(){
-  const a=document.createElement('a');
-  a.download='ap-social-image.png';
-  a.href=document.getElementById('outputCanvas').toDataURL('image/png');
+function dlImage() {
+  const a = document.createElement('a');
+  a.download = 'ap-social-image.png';
+  a.href = document.getElementById('outputCanvas').toDataURL('image/png');
   a.click();
 }
-function shareLinkedIn(){
-  dlImage();
-  setTimeout(()=>{ window.open('https://www.linkedin.com/sharing/share-offsite/?mini=true','_blank'); }, 400);
+function shareLinkedIn() {
+  window.open('https://www.linkedin.com/shareArticle?mini=true&url=' + encodeURIComponent('https://www.arnoldporter.com'), '_blank', 'width=600,height=500');
 }
-function shareFacebook(){
-  dlImage();
-  setTimeout(()=>{ window.open('https://www.facebook.com/','_blank'); }, 400);
+function shareFacebook() {
+  window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://www.arnoldporter.com'), '_blank', 'width=600,height=500');
 }
-function shareInstagram(){
+function shareInstagram() {
+  alert('Instagram does not support direct web sharing. Download your image and upload it from the Instagram app.');
   dlImage();
-  setTimeout(()=>{ window.open('https://www.instagram.com/','_blank'); }, 400);
 }
 
+// ── INIT ──────────────────────────────────────────────────────────
 buildThumbs();
+buildPhotoCountRow();
 </script>
 </body>
 </html>
